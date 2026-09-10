@@ -19,6 +19,7 @@ nav{margin-left:auto;display:flex;gap:4px}
 #closeDlg table{margin:8px 0 14px}
 #closeDlg td,#closeDlg th{padding:8px 10px}
 #closeDlg tfoot td{font-weight:700;border-top:2px solid var(--ink)}
+.pos{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px;color:var(--mute);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 12px}.pos input{padding:7px 10px;border:1px solid var(--line);border-radius:8px;width:130px;font-size:14px}.pos #posDiff{font-weight:700}.pos #posDiff.ok{color:var(--ok)}.pos #posDiff.bad{color:var(--warn)}
 .hint{font-size:12px;color:var(--mute);margin:0 0 4px}
 nav button{background:transparent;border:1px solid #2E3E3C;color:#C9D3BF;padding:7px 14px;border-radius:999px}
 nav button[aria-current="page"]{background:var(--neon);color:var(--ink);border-color:var(--neon);font-weight:700}
@@ -60,6 +61,10 @@ section[hidden]{display:none}
 .cart .actions{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:14px}
 .cart .actions .btn.primary{font-size:18px;padding:14px 28px}
 .cart .empty{padding:18px 14px;color:var(--mute);font-size:14px}
+.cart .disc{width:84px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;text-align:right;font-size:14px}
+.cart .pct{margin-left:14px;font-size:12px;color:var(--mute);font-weight:500}.cart .pct input{padding:4px 6px;border:1px solid var(--line);border-radius:6px}.cart .pct button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:4px 8px;font-size:12px}
+.th{width:36px;height:36px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px;border:1px solid var(--line)}
+.photo-row{display:flex;align-items:center;gap:10px}.photo-row img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.photo-row input{font-size:13px}
 .cart .err{padding:10px 14px;color:var(--warn);font-size:14px;border-top:1px solid var(--line)}
 .recent{margin-top:26px}
 .recent h2,.section-h{font-size:14px;color:var(--mute);font-weight:600;margin:0 0 8px}
@@ -156,6 +161,8 @@ dialog p.sub{margin:0 0 16px;color:var(--mute);font-size:14px}
 .day .sub{color:var(--mute);font-size:13px;margin:0 0 10px}
 .day .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media (max-width:820px){.day .grid{grid-template-columns:1fr}.cal button{min-height:52px;padding:4px}.cal button .amt{font-size:10px}}
+.settle{margin-top:28px;padding-top:18px;border-top:1px solid var(--line)}.settle h3{font-size:16px;margin:0}
+.settle table td.num,.settle table th.num{white-space:nowrap}
 /* 바코드 */
 .steps{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media (max-width:820px){.steps{grid-template-columns:1fr}}
@@ -226,7 +233,7 @@ td svg.bc{height:26px;width:96px;display:block}
   <h1>NEO LOCAL 재고<small>The Hyundai Seoul · 9.17 – 9.30</small></h1>
   <nav>
     <button data-tab="scan" aria-current="page">스캔</button>
-    <button data-tab="receipts">결제</button>
+    <button data-tab="receipts">결제 이력</button>
     <button data-tab="items">상품</button>
     <button data-tab="sales">매출</button>
     <button data-tab="barcode">바코드</button>
@@ -300,6 +307,17 @@ td svg.bc{height:26px;width:96px;display:block}
   </div>
   <div class="cal" id="cal"></div>
   <div class="day" id="dayWrap"></div>
+  <div class="settle" id="settleBox">
+    <h3>기간 정산표</h3>
+    <div class="rfilter" style="margin:8px 0 12px">
+      <label>기간 <input type="date" id="sFrom"> ~ <input type="date" id="sTo"></label>
+      <label>수수료율 <input type="number" id="sFee" min="0" max="100" step="0.5" value="30" style="width:70px"> %</label>
+      <button class="btn" id="sBuild">정산표 만들기</button>
+      <button class="btn ghost" id="sCsv" disabled>전체 CSV</button>
+      <button class="btn ghost" id="sBrandCsv" disabled>브랜드별 CSV</button>
+    </div>
+    <div id="sWrap"></div>
+  </div>
 </section>
 
 <!-- ───── 바코드 ───── -->
@@ -374,8 +392,11 @@ td svg.bc{height:26px;width:96px;display:block}
       <label class="field"><span>판매가 (원)</span><input name="price" type="number" min="0" step="100"></label>
       <label class="field"><span>현재 재고</span><input name="stock" type="number" min="0" value="0" required></label>
     </div>
+    <label class="field"><span>사진 (선택)</span><div class="photo-row"><img id="photoPrev" alt="" hidden><input type="file" name="photo" id="photoIn" accept="image/*"><button type="button" class="link" id="photoRm" hidden>사진 삭제</button></div></label>
     <div class="actions">
       <button class="btn ghost" value="cancel" type="button" id="dlgCancel">취소</button>
+      <button class="btn ghost" type="button" id="dlgDelete" hidden style="color:var(--warn)">삭제</button>
+      <span class="spacer"></span>
       <button class="btn primary" value="save">저장</button>
     </div>
   </form>
@@ -387,6 +408,7 @@ td svg.bc{height:26px;width:96px;display:block}
     <h2>일마감</h2>
     <p class="sub" id="closeSub"></p>
     <div id="closeWrap"></div>
+    <div class="pos" id="posRow"><label>오늘 POS 매출 <input type="number" id="posAmt" min="0" step="1000" placeholder="원"></label><label>메모 <input type="text" id="posNote" placeholder="차이 사유 등" style="width:180px"></label><span id="posDiff"></span><button class="btn" type="button" id="posSave">저장</button></div>
     <p class="hint">전체 파일 3개: 오늘 판매 요약 · 상품 재고 전체 · 입출고 기록 전체 (내부 보관용).<br>브랜드별 파일: 브랜드마다 한 장씩 — 오늘 판매 상세, 상품별 오늘·누적 판매, 남은 재고. 각 브랜드에 그대로 보낼 수 있어요.<br>브라우저가 "여러 파일 다운로드 허용"을 물으면 허용을 누르세요.</p>
     <div class="actions" style="flex-wrap:wrap">
       <button class="btn ghost" value="cancel" type="button" id="closeCancel">닫기</button>
@@ -407,10 +429,10 @@ td svg.bc{height:26px;width:96px;display:block}
 </dialog>
 
 <script>
-const BRANDS = ['Magasin Général','Street Chairs of Seoul','BOPOOL','Butter & Onion','xiuxiudang','Aero K','RAWPRESS'];
-const BRAND_KO = {'Magasin Général':'마가상 제네랄','Street Chairs of Seoul':'스트릿 체어스 오브 서울','BOPOOL':'보풀','Butter & Onion':'버터앤어니언','xiuxiudang':'수수당','Aero K':'에어로케이','RAWPRESS':'로우프레스'};
-const BRAND_CODE = {'Magasin Général':'MG','Street Chairs of Seoul':'SC','BOPOOL':'BP','Butter & Onion':'BO','xiuxiudang':'SS','Aero K':'AK','RAWPRESS':'RP'};
-const BRAND_NUM = {'Magasin Général':'01','Street Chairs of Seoul':'02','BOPOOL':'03','Butter & Onion':'04','xiuxiudang':'05','Aero K':'06','RAWPRESS':'07'};
+const BRANDS = ['Magasin Général','Street Chairs of Seoul','BOPOOL','Butter & Onion','xiuxiudang','Aero K','RAWPRESS','Chanyong Park'];
+const BRAND_KO = {'Magasin Général':'마가상 제네랄','Street Chairs of Seoul':'스트릿 체어스 오브 서울','BOPOOL':'보풀','Butter & Onion':'버터앤어니언','xiuxiudang':'수수당','Aero K':'에어로케이','RAWPRESS':'로우프레스','Chanyong Park':'박찬용'};
+const BRAND_CODE = {'Magasin Général':'MG','Street Chairs of Seoul':'SC','BOPOOL':'BP','Butter & Onion':'BO','xiuxiudang':'SS','Aero K':'AK','RAWPRESS':'RP','Chanyong Park':'CP'};
+const BRAND_NUM = {'Magasin Général':'01','Street Chairs of Seoul':'02','BOPOOL':'03','Butter & Onion':'04','xiuxiudang':'05','Aero K':'06','RAWPRESS':'07','Chanyong Park':'08'};
 /* ── Supabase 설정: 프로젝트의 Settings → API 에서 복사해 넣으세요 ── */
 const SUPABASE_URL = 'https://oadrqawqlwdqesfkcccm.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hZHJxYXdxbHdkcWVzZmtjY2NtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NTUxMDksImV4cCI6MjEwNDQzMTEwOX0.8hlO5hL_TzIFEa1lc3xs717rg2dMQJTX0MYb0dAihqo';
@@ -431,7 +453,7 @@ const MODE_TEXT = {in:'스캔한 상품의 재고에 수량을 더합니다.', o
 const TYPE_KO = {in:'입고', out:'판매', cancel:'판매취소', count:'실사', edit:'수정', new:'등록'};
 const isSale = l => l.type==='out' || l.type==='cancel';
 
-let state = {products:[], logs:[]};
+let state = {products:[], logs:[], closings:[]};
 let mode = 'out';
 let brandFilter = '';
 let saveTimer;
@@ -449,11 +471,12 @@ async function load(){
     sb.from('logs').select('*').order('t', {ascending:false}).limit(5000)
   ]);
   state.products = (ps||[]).map(rowP); state.logs = (ls||[]).map(rowL);
+  try{ const {data: cs} = await sb.from('closings').select('*'); state.closings = (cs||[]).map(c => ({day:c.day, pos:Number(c.pos_amount||0), app:Number(c.app_amount||0), note:c.note||''})); }catch(e){}
   render(); subscribe();
   $('#auth').hidden = true;
 }
-const rowP = r => ({code:r.code, brand:r.brand, name:r.name, price:r.price==null?null:Number(r.price), stock:r.stock, created:r.created_at});
-const rowL = r => ({id:r.id, t:r.t, type:r.type, code:r.code, name:r.name, brand:r.brand, price:r.price==null?null:Number(r.price), delta:r.delta, after:r.after, actor:r.actor, receipt:r.receipt_id||null, ref:r.ref_log_id||null});
+const rowP = r => ({code:r.code, brand:r.brand, name:r.name, price:r.price==null?null:Number(r.price), stock:r.stock, created:r.created_at, photo:r.photo_url||null});
+const rowL = r => ({id:r.id, t:r.t, type:r.type, code:r.code, name:r.name, brand:r.brand, price:r.price==null?null:Number(r.price), delta:r.delta, after:r.after, actor:r.actor, receipt:r.receipt_id||null, ref:r.ref_log_id||null, discount:Number(r.discount||0)});
 function upsertLocal(p){ const i = state.products.findIndex(x=>x.code===p.code); if(i>=0) state.products[i] = p; else state.products.push(p); }
 function pushLog(l){ if(!state.logs.some(x=>x.id===l.id)){ state.logs.unshift(l); if(state.logs.length>5000) state.logs.length=5000; } }
 let channel;
@@ -531,7 +554,7 @@ function showFeedback(kind, title, sub, stock, note){
   requestAnimationFrame(()=>fb.classList.add('flash'));
 }
 /* ── 장바구니 (판매 모드) ── */
-let cart = []; // {code, qty}
+let cart = []; // {code, qty, disc}  disc = 개당 할인(원)
 let cartErr = '';
 const cartQty = code => (cart.find(c=>c.code===code)||{}).qty||0;
 function addToCart(p, qty){
@@ -543,22 +566,25 @@ function addToCart(p, qty){
   showFeedback('ok', p.name, p.brand, p.stock, `장바구니에 담음 · ${fmt(p.price)}원 × ${cartQty(p.code)}`);
   beep(true); renderCart();
 }
-function cartLines(){ return cart.map(c => { const p = findByCode(c.code)||{}; return {...c, p, amt:(p.price||0)*c.qty}; }); }
+function cartLines(){ return cart.map(c => { const p = findByCode(c.code)||{}; const disc = Math.min(p.price||0, Math.max(0, c.disc||0)); return {...c, p, disc, amt:((p.price||0)-disc)*c.qty}; }); }
+const thumb = p => p && p.photo ? `<img src="${esc(p.photo)}" class="th" alt="">` : '';
 function renderCart(){
   const el = $('#cart');
   el.hidden = mode!=='out';
   if(el.hidden) return;
   const lines = cartLines();
   if(!lines.length){ el.innerHTML = `<div class="empty">장바구니가 비어 있습니다. 상품을 스캔하세요.</div>` + (cartErr?`<div class="err">${esc(cartErr)}</div>`:''); return; }
-  const tq = lines.reduce((s,l)=>s+l.qty,0), ta = lines.reduce((s,l)=>s+l.amt,0);
-  el.innerHTML = `<table><thead><tr><th>상품</th><th class="num">판매가</th><th class="num">수량</th><th class="num">금액</th><th></th></tr></thead><tbody>` +
-    lines.map(l => `<tr><td class="name">${esc(l.p.name||l.code)}<small>${esc(BRAND_KO[l.p.brand]||l.p.brand||'')}</small></td><td class="num">${fmt(l.p.price)}</td><td class="num"><span class="qtyc"><button data-dec="${esc(l.code)}">−</button><b>${l.qty}</b><button data-inc="${esc(l.code)}">+</button></span></td><td class="num"><b>${fmt(l.amt)}</b></td><td><button class="rm" data-rm="${esc(l.code)}">빼기</button></td></tr>`).join('') +
-    `</tbody><tfoot><tr><td colspan="2"><b>합계</b></td><td class="num"><b>${tq}개</b></td><td class="num total" colspan="2"><small>원</small>${fmt(ta)}</td></tr></tfoot></table>` +
+  const tq = lines.reduce((s,l)=>s+l.qty,0), ta = lines.reduce((s,l)=>s+l.amt,0), td = lines.reduce((s,l)=>s+l.disc*l.qty,0);
+  el.innerHTML = `<table><thead><tr><th>상품</th><th class="num">판매가</th><th class="num">개당 할인</th><th class="num">수량</th><th class="num">금액</th><th></th></tr></thead><tbody>` +
+    lines.map(l => `<tr><td class="name">${thumb(l.p)}${esc(l.p.name||l.code)}<small>${esc(BRAND_KO[l.p.brand]||l.p.brand||'')}</small></td><td class="num">${fmt(l.p.price)}</td><td class="num"><input class="disc" type="number" min="0" step="100" value="${l.disc||''}" placeholder="0" data-disc="${esc(l.code)}"></td><td class="num"><span class="qtyc"><button data-dec="${esc(l.code)}">−</button><b>${l.qty}</b><button data-inc="${esc(l.code)}">+</button></span></td><td class="num"><b>${fmt(l.amt)}</b></td><td><button class="rm" data-rm="${esc(l.code)}">빼기</button></td></tr>`).join('') +
+    `</tbody><tfoot><tr><td colspan="3"><b>합계</b>${td?`<small style="color:var(--mute);font-weight:500;margin-left:8px">할인 −${fmt(td)}</small>`:''}<span class="pct">전체 <input type="number" id="pct" min="0" max="100" placeholder="%" style="width:56px"> <button type="button" id="pctApply">% 할인</button></span></td><td class="num"><b>${tq}개</b></td><td class="num total" colspan="2"><small>원</small>${fmt(ta)}</td></tr></tfoot></table>` +
     (cartErr?`<div class="err">${esc(cartErr)}</div>`:'') +
     `<div class="actions"><button class="btn ghost" id="cartClear">전체 취소</button><button class="btn primary" id="cartCheckout">결제 완료 — 재고 차감</button></div>`;
   el.querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { const p = findByCode(b.dataset.inc); if(p) addToCart(p, 1); });
   el.querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { const c = cart.find(x=>x.code===b.dataset.dec); if(!c) return; c.qty--; if(c.qty<=0) cart = cart.filter(x=>x!==c); renderCart(); });
   el.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { cart = cart.filter(x=>x.code!==b.dataset.rm); renderCart(); });
+  el.querySelectorAll('[data-disc]').forEach(i => i.onchange = () => { const c = cart.find(x=>x.code===i.dataset.disc); if(c){ c.disc = Math.max(0, parseInt(i.value)||0); renderCart(); } });
+  $('#pctApply').onclick = () => { const pct = Math.min(100, Math.max(0, parseFloat($('#pct').value)||0)); cart.forEach(c => { const p = findByCode(c.code); c.disc = p && p.price ? Math.round(p.price*pct/100) : 0; }); renderCart(); };
   $('#cartClear').onclick = () => { if(confirm('장바구니를 비울까요?')){ cart = []; cartErr=''; renderCart(); scan.focus(); } };
   $('#cartCheckout').onclick = checkout;
 }
@@ -570,7 +596,7 @@ async function checkout(){
   let tq = 0, ta = 0;
   for(const l of lines){
     try{
-      const r = await rpc('apply_stock', {p_code: l.code, p_type: 'out', p_qty: l.qty, p_receipt: receipt});
+      const r = await rpc('apply_stock', {p_code: l.code, p_type: 'out', p_qty: l.qty, p_receipt: receipt, p_discount: l.disc||0});
       l.p.stock = r.stock; pushLog(rowL(r.log));
       done.push(l.code); tq += l.qty; ta += l.amt;
     }catch(e){
@@ -606,7 +632,7 @@ function groupReceipts(logs){
 }
 function receiptHTML(r, compact){
   const status = r.cq>=r.qty ? '전체 취소' : r.cq ? `부분 취소 ${r.cq}개` : '';
-  const lines = r.lines.map(l => { const c = cancelledOf(l), left = -l.delta - c; return `<tr><td>${esc(l.name)}<br><small style="color:var(--mute)">${esc(BRAND_KO[l.brand]||l.brand)}</small></td><td class="num">${-l.delta}개${c?`<span class="cx">취소 ${c}</span>`:''}</td><td class="num">${fmt(-l.delta*unitPrice(l))}</td><td class="num">${isStore()&&left>0?`<button class="cancelSale" data-cancel="${l.id}">취소</button>`:''}</td></tr>`; }).join('');
+  const lines = r.lines.map(l => { const c = cancelledOf(l), left = -l.delta - c; return `<tr><td>${esc(l.name)}<br><small style="color:var(--mute)">${esc(BRAND_KO[l.brand]||l.brand)}</small></td><td class="num">${-l.delta}개${c?`<span class="cx">취소 ${c}</span>`:''}</td><td class="num">${fmt(-l.delta*unitPrice(l))}${l.discount?`<br><small style="color:var(--mute)">할인 −${fmt(l.discount)}/개</small>`:''}</td><td class="num">${isStore()&&left>0?`<button class="cancelSale" data-cancel="${l.id}">취소</button>`:''}</td></tr>`; }).join('');
   const ft = isStore() && r.cq<r.qty ? `<div class="ft"><button class="btn ghost" data-cancel-all="${r.lines.map(l=>l.id).join(',')}">전체 취소</button></div>` : '';
   return `<div class="rcpt ${r.cq>=r.qty?'void':''}"><div class="hd"><time>${compact?hhmm(r.t):dmy(r.t)}</time><span>${r.lines.length}종 ${r.qty}개</span>${r.id?`<span class="id">${r.id}</span>`:''}${status?`<span class="st">${status}</span>`:''}<span class="sum">${fmt(r.amt - r.ca)}원${r.ca?`<small style="font-weight:500;color:var(--mute)"> / ${fmt(r.amt)}</small>`:''}</span></div><table><tbody>${lines}</tbody></table>${ft}</div>`;
 }
@@ -703,18 +729,40 @@ function openItemDlg(p, isEdit){
   form.code.value = p.code||''; form.brand.value = p.brand||brandFilter||BRANDS[0]; form.name.value = p.name||'';
   form.price.value = p.price??''; form.stock.value = p.stock??0;
   form.code.readOnly = !!isEdit;
+  photoState = {url: p.photo||null, file:null, remove:false}; renderPhotoPrev();
+  $('#dlgDelete').hidden = !isEdit;
   dlg.showModal(); (isEdit ? form.name : (p.code ? form.name : form.code)).focus();
 }
 $('#dlgCancel').onclick = () => dlg.close('cancel');
-form.addEventListener('submit', e => {
+let photoState = {url:null, file:null, remove:false};
+function renderPhotoPrev(){ const img = $('#photoPrev'); const src = photoState.file ? URL.createObjectURL(photoState.file) : (!photoState.remove && photoState.url) || ''; img.hidden = !src; if(src) img.src = src; $('#photoRm').hidden = !src; }
+$('#photoIn').onchange = async e => { const f = e.target.files[0]; if(!f) return; photoState.file = await shrinkImage(f); photoState.remove = false; renderPhotoPrev(); };
+$('#photoRm').onclick = () => { photoState.file = null; photoState.remove = true; $('#photoIn').value=''; renderPhotoPrev(); };
+function shrinkImage(file, max=640){
+  return new Promise(res => { const img = new Image(); img.onload = () => { const s = Math.min(1, max/Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width*s); c.height = Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height); c.toBlob(b => res(new File([b], 'p.jpg', {type:'image/jpeg'})), 'image/jpeg', .82); }; img.onerror = () => res(file); img.src = URL.createObjectURL(file); });
+}
+async function uploadPhoto(code, file){
+  const path = `${code}-${Date.now()}.jpg`;
+  const { error } = await sb.storage.from('photos').upload(path, file, {contentType:'image/jpeg', upsert:true});
+  if(error) throw error;
+  return sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
+}
+$('#dlgDelete').onclick = async () => {
+  if(!editing) return; const p = findByCode(editing);
+  if(!confirm(`'${p.name}' 상품을 삭제할까요? 판매 기록이 있는 상품은 삭제할 수 없습니다.`)) return;
+  try{ await rpc('delete_product', {p_code: editing}); state.products = state.products.filter(x=>x.code!==editing); dlg.close('cancel'); render(); }
+  catch(err){ const m = String(err.message||''); alert(m.includes('HAS_SALES') ? '판매 기록이 있어 삭제할 수 없어요. 대신 재고를 0으로 두면 목록에서 관리됩니다.' : m.includes('does not exist') || m.includes('delete_product') ? '서버에 삭제 기능이 아직 없습니다. Supabase SQL 업데이트를 먼저 실행하세요.' : '삭제 실패: '+m); }
+};
+form.addEventListener('submit', async e => {
   if(e.submitter && e.submitter.value!=='save') return;
   const d = Object.fromEntries(new FormData(form));
   d.code = d.code.trim(); d.stock = parseInt(d.stock)||0; d.price = d.price===''? null : Number(d.price);
   if(!editing && findByCode(d.code)){ alert('이미 등록된 바코드입니다.'); e.preventDefault(); return; }
-  const row = {code: editing || d.code, brand:d.brand, name:d.name.trim(), price:d.price, stock:d.stock};
+  const row = {code: editing || d.code, brand:d.brand, name:d.name.trim(), price:d.price, stock:d.stock, photo: photoState.remove ? '' : (photoState.url||undefined)};
+  if(photoState.file){ e.preventDefault(); try{ row.photo = await uploadPhoto(row.code, photoState.file); }catch(err){ alert('사진 업로드 실패: '+(err.message||err)+'\n사진 없이 저장합니다.'); } dlg.close('save'); }
   rpc('register_products', {p_rows:[row]}).then(res => {
     const c = (res && res[0] && res[0].code) || row.code;
-    upsertLocal({...row, code:c, created:now()}); render();
+    const prev = findByCode(c)||{}; upsertLocal({...prev, ...row, code:c, photo: row.photo===undefined ? prev.photo||null : (row.photo||null), created:prev.created||now()}); render();
     if(!editing) showFeedback('ok', row.name, row.brand, row.stock, '등록 완료');
   }).catch(err => alert('저장 실패: ' + (err.message||err)));
   setTimeout(()=>scan.focus(), 50);
@@ -744,7 +792,7 @@ function renderItems(){
   ps.sort((a,b)=> a.brand.localeCompare(b.brand) || a.name.localeCompare(b.name));
   if(!ps.length){ $('#itemsWrap').innerHTML = `<div class="empty">${state.products.length ? '조건에 맞는 상품이 없습니다.' : '아직 등록된 상품이 없어요. 바코드 탭에서 상품 리스트를 붙여넣으면 바코드가 자동으로 만들어집니다.'}</div>`; return; }
   $('#itemsWrap').innerHTML = `<table><thead><tr><th>브랜드</th><th>상품</th><th>바코드</th><th class="num">판매가</th><th class="num">재고</th><th></th></tr></thead><tbody>` +
-    ps.map(p => `<tr class="${p.stock<=low?'low':''}"><td>${esc(BRAND_KO[p.brand]||p.brand)}</td><td>${esc(p.name)}</td><td><span class="code">${esc(p.code)}</span></td><td class="num">${fmt(p.price)}</td><td class="num stock">${p.stock}</td><td><button class="link" data-edit="${esc(p.code)}">수정</button></td></tr>`).join('') + '</tbody></table>';
+    ps.map(p => `<tr class="${p.stock<=low?'low':''}"><td>${esc(BRAND_KO[p.brand]||p.brand)}</td><td>${thumb(p)}${esc(p.name)}</td><td><span class="code">${esc(p.code)}</span></td><td class="num">${fmt(p.price)}</td><td class="num stock">${p.stock}</td><td><button class="link" data-edit="${esc(p.code)}">수정</button></td></tr>`).join('') + '</tbody></table>';
   $('#itemsWrap').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openItemDlg(findByCode(b.dataset.edit), true));
 }
 function renderRecent(){
@@ -789,7 +837,8 @@ let calMonth = new Date(); calMonth = new Date(calMonth.getFullYear(), calMonth.
 let calDay = dkey(new Date().toISOString());
 const POPUP = {from:'2026-09-17', to:'2026-09-30'};
 const visibleBrands = () => (typeof VISIBLE!=='undefined' && VISIBLE.length) ? VISIBLE : BRANDS;
-const unitPrice = l => (l.price ?? (findByCode(l.code)||{}).price) || 0;
+const basePrice = l => (l.price ?? (findByCode(l.code)||{}).price) || 0;
+const unitPrice = l => Math.max(0, basePrice(l) - (l.discount||0));
 function salesByDay(){
   const m = {};
   state.logs.forEach(l => { if(!isSale(l)) return; const k = dkey(l.t); m[k] = m[k] || {qty:0, amt:0}; m[k].qty += -l.delta; m[k].amt += -l.delta*unitPrice(l); });
@@ -828,6 +877,37 @@ function renderDay(){
     <div><table><thead><tr><th>브랜드</th><th class="num">판매</th><th class="num">매출(원)</th></tr></thead><tbody>${brands.map(r=>`<tr><td>${esc(BRAND_KO[r.b])}</td><td class="num">${r.qty}</td><td class="num">${fmt(r.amt)}</td></tr>`).join('')}</tbody><tfoot><tr><td><b>합계</b></td><td class="num"><b>${tq}</b></td><td class="num"><b>${fmt(ta)}</b></td></tr></tfoot></table></div>
     <div><table><thead><tr><th>상품</th><th class="num">수량</th><th class="num">매출(원)</th></tr></thead><tbody>${its.map(([c,r])=>`<tr><td>${esc(r.name)}<br><small style="color:var(--mute)">${esc(BRAND_KO[r.brand])}</small></td><td class="num">${r.qty}</td><td class="num">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table></div></div>`;
 }
+/* ── 기간 정산표 ── */
+let settleRows = null, settleRange = null;
+$('#sFrom').value = POPUP.from; $('#sTo').value = POPUP.to;
+function settleCalc(){
+  const from = $('#sFrom').value, to = $('#sTo').value, fee = Math.max(0, parseFloat($('#sFee').value)||0)/100;
+  const inRange = l => { const k = dkeyLocal(new Date(l.t)); return (!from || k>=from) && (!to || k<=to); };
+  const ls = state.logs.filter(l => isSale(l) && inRange(l));
+  const rows = visibleBrands().map(b => {
+    const x = ls.filter(l=>l.brand===b), outs = x.filter(l=>l.type==='out'), cans = x.filter(l=>l.type==='cancel');
+    const soldQ = outs.reduce((n,l)=>n-l.delta,0), gross = outs.reduce((n,l)=>n + (-l.delta)*basePrice(l),0), disc = outs.reduce((n,l)=>n + (-l.delta)*(l.discount||0),0);
+    const canQ = cans.reduce((n,l)=>n+l.delta,0), canA = cans.reduce((n,l)=>n + l.delta*unitPrice(l),0);
+    const net = gross - disc - canA, feeA = Math.round(net*fee), pay = net - feeA;
+    const items = {}; x.forEach(l => { const k=l.code; items[k] = items[k]||{code:l.code, name:l.name, price:basePrice(l), q:0, c:0, amt:0}; if(l.type==='out'){ items[k].q += -l.delta; items[k].amt += -l.delta*unitPrice(l); } else { items[k].c += l.delta; items[k].amt -= l.delta*unitPrice(l); } });
+    return {b, soldQ, gross, disc, canQ, canA, net, feeA, pay, items:Object.values(items).sort((a,c)=>c.amt-a.amt)};
+  }).filter(r => r.soldQ || r.canQ);
+  const cls = state.closings.filter(c => (!from || c.day>=from) && (!to || c.day<=to));
+  return {rows, from, to, fee, pos: cls.reduce((s,c)=>s+c.pos,0), posDays: cls.length, appAtClose: cls.reduce((s,c)=>s+c.app,0)};
+}
+$('#sBuild').onclick = () => {
+  const s = settleCalc(); settleRows = s.rows; settleRange = s;
+  const T = k => s.rows.reduce((n,r)=>n+r[k],0);
+  const posLine = s.posDays ? `<p class="preview-note">POS 대조: ${s.posDays}일 입력 · POS 합계 <b>${fmt(s.pos)}원</b> · 앱 매출 합계 ${fmt(T('net'))}원 · 차이 <b>${fmt(s.pos - T('net'))}원</b></p>` : `<p class="preview-note">POS 대조 기록 없음 (일마감에서 POS 매출을 입력하면 여기에 합산됩니다)</p>`;
+  $('#sWrap').innerHTML = s.rows.length ? `<table><thead><tr><th>브랜드</th><th class="num">판매</th><th class="num">정가 매출</th><th class="num">할인</th><th class="num">취소</th><th class="num">순매출</th><th class="num">수수료 ${(s.fee*100)}%</th><th class="num">지급액</th></tr></thead><tbody>` +
+    s.rows.map(r => `<tr><td>${esc(BRAND_KO[r.b])}</td><td class="num">${r.soldQ}${r.canQ?` <small style="color:var(--mute)">−${r.canQ}</small>`:''}</td><td class="num">${fmt(r.gross)}</td><td class="num">${r.disc?'−'+fmt(r.disc):'0'}</td><td class="num">${r.canA?'−'+fmt(r.canA):'0'}</td><td class="num"><b>${fmt(r.net)}</b></td><td class="num">−${fmt(r.feeA)}</td><td class="num"><b>${fmt(r.pay)}</b></td></tr>`).join('') +
+    `</tbody><tfoot><tr><td><b>합계</b></td><td class="num">${T('soldQ')}</td><td class="num">${fmt(T('gross'))}</td><td class="num">−${fmt(T('disc'))}</td><td class="num">−${fmt(T('canA'))}</td><td class="num"><b>${fmt(T('net'))}</b></td><td class="num">−${fmt(T('feeA'))}</td><td class="num"><b>${fmt(T('pay'))}</b></td></tr></tfoot></table>` + posLine
+    : '<div class="empty">이 기간에 판매 기록이 없습니다.</div>';
+  $('#sCsv').disabled = $('#sBrandCsv').disabled = !s.rows.length;
+};
+$('#sCsv').onclick = () => { const s = settleRange; download(`neolocal_정산_${s.from}_${s.to}.csv`, toCSV([['기간', s.from, s.to], ['수수료율', s.fee*100+'%'], [], ['브랜드','brand_en','판매수량','취소수량','정가매출','할인','취소금액','순매출','수수료','지급액'], ...s.rows.map(r=>[BRAND_KO[r.b], r.b, r.soldQ, r.canQ, r.gross, r.disc, r.canA, r.net, r.feeA, r.pay]), ['합계','', ...['soldQ','canQ','gross','disc','canA','net','feeA','pay'].map(k=>s.rows.reduce((n,r)=>n+r[k],0))], [], ['POS 대조 일수', s.posDays, 'POS 합계', s.pos, '앱 매출 합계', s.rows.reduce((n,r)=>n+r.net,0)]])); };
+$('#sBrandCsv').onclick = () => { const s = settleRange; s.rows.forEach((r,i) => setTimeout(() => download(`neolocal_정산_${BRAND_KO[r.b].replace(/\s/g,'')}_${s.from}_${s.to}.csv`, toCSV([['브랜드', BRAND_KO[r.b], r.b], ['기간', s.from, s.to], ['장소','NEO LOCAL · 더현대 서울 B1'], [], ['판매수량', r.soldQ], ['취소수량', r.canQ], ['정가매출', r.gross], ['할인', r.disc], ['취소금액', r.canA], ['순매출', r.net], [`수수료 ${s.fee*100}%`, r.feeA], ['지급액', r.pay], [], ['[상품별]'], ['바코드','상품명','판매가','판매','취소','순매출'], ...r.items.map(it=>[it.code, it.name, it.price, it.q, it.c, it.amt])])), i*500)); };
+
 $('#calPrev').onclick = () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()-1, 1); renderSales(); };
 $('#calNext').onclick = () => { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth()+1, 1); renderSales(); };
 
@@ -885,7 +965,23 @@ $('#closeBtn').onclick = () => {
   $('#closeWrap').innerHTML = `<table><thead><tr><th>브랜드</th><th class="num">판매</th><th class="num">매출(원)</th><th class="num">남은 재고</th></tr></thead><tbody>` +
     rows.map(r => `<tr><td>${esc(BRAND_KO[r.b])}</td><td class="num">${r.qty}</td><td class="num">${fmt(r.amt)}</td><td class="num">${r.stock}</td></tr>`).join('') +
     `</tbody><tfoot><tr><td>합계</td><td class="num">${tq}</td><td class="num">${fmt(ta)}</td><td class="num">${rows.reduce((s,r)=>s+r.stock,0)}</td></tr></tfoot></table>`;
+  $('#posRow').hidden = !isStore();
+  const cl = state.closings.find(c => c.day===dkeyLocal(new Date())); $('#posAmt').value = cl ? cl.pos : ''; $('#posNote').value = cl ? (cl.note||'') : '';
+  posDiff();
   $('#closeDlg').close?.(); $('#closeDlg').showModal();
+};
+function posDiff(){
+  const app = dailySummary().reduce((s,r)=>s+r.amt,0), v = $('#posAmt').value;
+  const el = $('#posDiff'); if(v===''){ el.textContent=''; el.className=''; return; }
+  const d = Number(v) - app; el.textContent = d===0 ? '앱 매출과 일치' : `차이 ${d>0?'+':''}${fmt(d)}원`; el.className = d===0 ? 'ok' : 'bad';
+}
+$('#posAmt').addEventListener('input', posDiff);
+$('#posSave').onclick = async () => {
+  const day = dkeyLocal(new Date()), app = dailySummary().reduce((s,r)=>s+r.amt,0);
+  try{ await rpc('save_closing', {p_day: day, p_pos: Number($('#posAmt').value)||0, p_app: app, p_note: $('#posNote').value||null });
+    state.closings = state.closings.filter(c=>c.day!==day).concat([{day, pos:Number($('#posAmt').value)||0, app, note:$('#posNote').value||''}]);
+    $('#posSave').textContent = '저장됨'; setTimeout(()=>$('#posSave').textContent='저장', 1500);
+  }catch(err){ alert(String(err.message||'').includes('save_closing') ? '서버에 POS 대조 기능이 아직 없습니다. Supabase SQL 업데이트를 먼저 실행하세요.' : '저장 실패: '+(err.message||err)); }
 };
 $('#closeBrandDownload').onclick = () => {
   const s = stamp(), d = new Date().toLocaleDateString('ko-KR');
@@ -897,7 +993,7 @@ $('#closeBrandDownload').onclick = () => {
     const sold = tl.filter(l=>l.brand===b);
     const soldAll = state.logs.filter(l=>isSale(l) && l.brand===b);
     const cnt = (ls, code) => ls.filter(l=>l.code===code).reduce((n,l)=>n-l.delta,0);
-    const up = l => (l.price ?? (findByCode(l.code)||{}).price) || 0;
+    const up = unitPrice;
     const tq = sold.reduce((n,l)=>n-l.delta,0), ta = sold.reduce((n,l)=>n + (-l.delta)*up(l),0);
     const rows = [
       ['브랜드', BRAND_KO[b], b], ['마감일', d], ['오늘 판매', tq+'개', ta+'원'], ['장소','NEO LOCAL · 더현대 서울 B1'], [],
@@ -915,8 +1011,8 @@ $('#closeCancel').onclick = () => $('#closeDlg').close();
 $('#closeDownload').onclick = () => {
   const s = stamp(), rows = dailySummary();
   const sold = todayLogs().filter(isSale);
-  const summary = [['date','brand','brand_en','units_sold','sales_krw','stock_remaining'], ...rows.map(r=>[s, BRAND_KO[r.b], r.b, r.qty, r.amt, r.stock]), [], ['--- 오늘 판매 상세 ---'], ['time','brand','barcode','name','qty','unit_price','amount'],
-    ...sold.map(l => { const up = (l.price ?? (findByCode(l.code)||{}).price) || 0; return [dmy(l.t), BRAND_KO[l.brand], l.code, l.name, -l.delta, up, -l.delta*up]; })];
+  const summary = [['date','brand','brand_en','units_sold','sales_krw','stock_remaining'], ...rows.map(r=>[s, BRAND_KO[r.b], r.b, r.qty, r.amt, r.stock]), [], ['--- 오늘 판매 상세 ---'], ['time','brand','barcode','name','qty','unit_price','amount','discount_per_unit'],
+    ...sold.map(l => { const up = unitPrice(l); return [dmy(l.t), BRAND_KO[l.brand], l.code, l.name, -l.delta, up, -l.delta*up, l.discount||0]; })];
   download(`neolocal_마감_${s}.csv`, toCSV(summary));
   setTimeout(()=>download(`neolocal_items_${s}.csv`, toCSV([['barcode','brand','name','price','stock'], ...state.products.map(p=>[p.code,p.brand,p.name,p.price??'',p.stock])])), 500);
   setTimeout(()=>download(`neolocal_log_${s}.csv`, toCSV([['time','type','brand','barcode','name','unit_price','delta','after'], ...state.logs.map(l=>[l.t,TYPE_KO[l.type],l.brand,l.code,l.name,l.price??'',l.delta,l.after])])), 1000);
