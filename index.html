@@ -42,15 +42,40 @@ section[hidden]{display:none}
 .feedback .brand{color:var(--mute)}
 .feedback .stock{font-size:40px;font-weight:800;float:right;line-height:1}
 .feedback .stock small{font-size:14px;font-weight:500;color:var(--mute);display:block;text-align:right}
+.cart{margin-top:20px;background:#fff;border:2px solid var(--ink);border-radius:12px;overflow:hidden}
+.cart[hidden]{display:none}
+.cart table{width:100%;border-collapse:collapse;font-size:15px}
+.cart th{font-size:12px;color:var(--mute);font-weight:600;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+.cart td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+.cart .num{text-align:right;font-variant-numeric:tabular-nums}
+.cart .name{font-weight:700}
+.cart .name small{display:block;color:var(--mute);font-weight:500}
+.cart .qtyc{display:inline-flex;align-items:center;gap:6px}
+.cart .qtyc button{width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:6px;font-weight:700;font-size:16px}
+.cart .qtyc b{min-width:26px;text-align:center}
+.cart .rm{border:0;background:none;color:var(--mute);font-size:12px;text-decoration:underline}
+.cart tfoot td{border-bottom:0;background:var(--paper)}
+.cart .total{font-size:26px;font-weight:800}
+.cart .total small{font-size:13px;font-weight:500;color:var(--mute);margin-right:8px}
+.cart .actions{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:14px}
+.cart .actions .btn.primary{font-size:18px;padding:14px 28px}
+.cart .empty{padding:18px 14px;color:var(--mute);font-size:14px}
+.cart .err{padding:10px 14px;color:var(--warn);font-size:14px;border-top:1px solid var(--line)}
 .recent{margin-top:26px}
 .recent h2,.section-h{font-size:14px;color:var(--mute);font-weight:600;margin:0 0 8px}
 .recent ul{list-style:none;padding:0;margin:0}
 .recent li{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
 .recent li time{color:var(--mute);width:62px;flex:none}
+.recent li.receipt{background:#fff;border:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:8px 8px 0 0;margin-top:10px;padding:8px 12px;font-weight:700}
+.recent li.receipt .sum{margin-left:auto}
+.recent li.inr{padding-left:12px;padding-right:12px;background:#fff;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.recent li.inr:last-of-type{border-radius:0 0 8px 8px}
 .tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:700;background:#E7EAD9}
 .tag.in{background:#D8F0DC;color:var(--ok)}
 .tag.out{background:#FBE0D8;color:var(--warn)}
 .tag.count{background:var(--neon)}
+.tag.cancel{background:#FFF3C4;color:#8A5A00}
+button.cancelSale{border:1px solid var(--line);background:#fff;border-radius:6px;padding:2px 8px;font-size:12px;color:var(--mute);margin-left:8px}
 
 /* 상품 */
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
@@ -89,6 +114,24 @@ dialog p.sub{margin:0 0 16px;color:var(--mute);font-size:14px}
 .status{position:fixed;left:0;right:0;bottom:0;padding:8px 20px;font-size:12px;color:var(--mute);background:var(--paper);border-top:1px solid var(--line);display:flex;gap:16px}
 .status .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);display:inline-block;margin-right:6px}
 
+/* 결제 이력 */
+.rfilter{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;font-size:14px;color:var(--mute)}
+.rfilter input,.rfilter select{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px}
+.rfilter .cnt{margin-left:auto}
+.rcpt{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.rcpt.void{opacity:.6}
+.rcpt .hd{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--paper)}
+.rcpt .hd time{font-weight:700;font-size:15px}
+.rcpt .hd .id{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mute)}
+.rcpt .hd .sum{margin-left:auto;font-weight:800;font-size:16px}
+.rcpt .hd .st{font-size:12px;padding:2px 8px;border-radius:999px;background:#FFF3C4;color:#8A5A00}
+.rcpt table{width:100%;border-collapse:collapse;font-size:14px;margin:0;border:0;border-radius:0}
+.rcpt td{padding:9px 16px;border-bottom:1px solid var(--line)}
+.rcpt tr:last-child td{border-bottom:0}
+.rcpt td.num{text-align:right;white-space:nowrap}
+.rcpt td .cx{color:#8A5A00;font-size:12px;margin-left:6px}
+.rcpt .ft{display:flex;justify-content:flex-end;gap:8px;padding:10px 16px;border-top:1px solid var(--line)}
+@media (max-width:640px){.rcpt .hd{flex-wrap:wrap}.rcpt .hd .id{display:none}}
 /* 매출 달력 */
 .cal-head{display:flex;align-items:center;gap:10px;margin:0 0 12px}
 .cal-head h2{font-size:18px;margin:0;min-width:130px;text-align:center}
@@ -138,7 +181,7 @@ td svg.bc{height:26px;width:96px;display:block}
 .sheet.roll4025 .label .n{font-size:8pt;-webkit-line-clamp:1}
 .sheet.a4-3x8 .label{width:63.5mm;height:33.9mm}
 @media print{
-  header,.status,#tab-sales,#auth,#closeBtn,main>section:not(#tab-barcode),#tab-barcode>*:not(.steps),.steps>.panel:not(#labelPanel),#labelPanel>*:not(#sheetWrap),#sheetWrap>*:not(.sheet){display:none!important}
+  header,.status,#tab-sales,#tab-receipts,#auth,#closeBtn,main>section:not(#tab-barcode),#tab-barcode>*:not(.steps),.steps>.panel:not(#labelPanel),#labelPanel>*:not(#sheetWrap),#sheetWrap>*:not(.sheet){display:none!important}
   html,body{background:#fff}main{max-width:none;margin:0;padding:0}
   .steps{display:block}#labelPanel{border:0;padding:0;border-radius:0}
   .sheet{display:block;background:none;padding:0;margin:0;border-radius:0;max-height:none;overflow:visible}
@@ -183,6 +226,7 @@ td svg.bc{height:26px;width:96px;display:block}
   <h1>NEO LOCAL 재고<small>The Hyundai Seoul · 9.17 – 9.30</small></h1>
   <nav>
     <button data-tab="scan" aria-current="page">스캔</button>
+    <button data-tab="receipts">결제</button>
     <button data-tab="items">상품</button>
     <button data-tab="sales">매출</button>
     <button data-tab="barcode">바코드</button>
@@ -206,16 +250,29 @@ td svg.bc{height:26px;width:96px;display:block}
   </div>
   <div class="qty">
     <label>수량 <input id="qty" type="number" min="1" value="1"></label>
-    <span id="modeHint">스캔한 상품의 재고를 1개 차감합니다.</span>
+    <span id="modeHint">스캔한 상품이 장바구니에 담깁니다. 결제 완료를 누르면 한꺼번에 재고가 차감됩니다.</span>
   </div>
   <div class="feedback" id="feedback">
     <div class="big">대기 중</div>
-    <div class="brand">등록된 상품을 스캔하면 재고가 바로 반영됩니다. 처음 보는 바코드는 상품 등록 창이 열립니다.</div>
+    <div class="brand">판매 모드에서는 스캔한 상품이 아래 장바구니에 담기고, <b>결제 완료</b>를 누를 때 재고가 차감됩니다. 처음 보는 바코드는 상품 등록 창이 열립니다.</div>
   </div>
+  <div class="cart" id="cart"></div>
   <div class="recent">
     <h2>오늘 처리한 항목</h2>
     <ul id="recent"></ul>
   </div>
+</section>
+
+<!-- ───── 결제 이력 ───── -->
+<section id="tab-receipts" hidden>
+  <div class="rfilter">
+    <label>날짜 <input type="date" id="rDate"></label>
+    <label>시간 <input type="time" id="rFrom"> ~ <input type="time" id="rTo"></label>
+    <label>상품명 <input type="search" id="rQ" placeholder="검색" style="width:140px"></label>
+    <label><input type="checkbox" id="rVoid"> 취소 건만</label>
+    <span class="cnt" id="rCount"></span>
+  </div>
+  <div id="rList"></div>
 </section>
 
 <!-- ───── 상품 ───── -->
@@ -282,7 +339,7 @@ td svg.bc{height:26px;width:96px;display:block}
 <section id="tab-log" hidden>
   <div class="toolbar">
     <select id="logBrand"><option value="">모든 브랜드</option></select>
-    <select id="logType"><option value="">모든 작업</option><option value="in">입고</option><option value="out">판매</option><option value="count">실사</option><option value="edit">수정</option></select>
+    <select id="logType"><option value="">모든 작업</option><option value="in">입고</option><option value="out">판매</option><option value="cancel">판매취소</option><option value="count">실사</option><option value="edit">수정</option></select>
     <span class="spacer"></span>
     <button class="btn ghost" id="exportLog">기록 CSV</button>
     <button class="btn ghost" id="resetBtn">모든 데이터 초기화</button>
@@ -293,6 +350,18 @@ td svg.bc{height:26px;width:96px;display:block}
 
 <div class="status"><span><span class="dot" id="saveDot"></span><span id="saveText">저장됨</span></span><span id="countText"></span></div>
 
+<!-- 판매 취소 -->
+<dialog id="cancelDlg">
+  <form method="dialog" id="cancelForm">
+    <h2>판매 취소</h2>
+    <p class="sub" id="cancelSub"></p>
+    <label class="field"><span>취소 수량</span><input name="qty" type="number" min="1" value="1" required></label>
+    <div class="actions">
+      <button class="btn ghost" type="button" id="cancelClose">닫기</button>
+      <button class="btn primary" value="ok">재고 되돌리기</button>
+    </div>
+  </form>
+</dialog>
 <!-- 상품 등록/수정 -->
 <dialog id="itemDlg">
   <form method="dialog" id="itemForm">
@@ -358,8 +427,9 @@ const dmy = iso => new Date(iso).toLocaleString('ko-KR',{month:'numeric',day:'nu
 const esc = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const findByCode = code => state.products.find(p => p.code === code);
 function addLog(){ /* 기록은 서버 함수가 남깁니다 */ }
-const MODE_TEXT = {in:'스캔한 상품의 재고에 수량을 더합니다.', out:'스캔한 상품의 재고를 차감합니다.', count:'스캔한 상품의 재고를 입력한 수량으로 맞춥니다.'};
-const TYPE_KO = {in:'입고', out:'판매', count:'실사', edit:'수정', new:'등록'};
+const MODE_TEXT = {in:'스캔한 상품의 재고에 수량을 더합니다.', out:'스캔한 상품이 장바구니에 담깁니다. 결제 완료를 누르면 한꺼번에 재고가 차감됩니다.', count:'스캔한 상품의 재고를 입력한 수량으로 맞춥니다.'};
+const TYPE_KO = {in:'입고', out:'판매', cancel:'판매취소', count:'실사', edit:'수정', new:'등록'};
+const isSale = l => l.type==='out' || l.type==='cancel';
 
 let state = {products:[], logs:[]};
 let mode = 'out';
@@ -383,7 +453,7 @@ async function load(){
   $('#auth').hidden = true;
 }
 const rowP = r => ({code:r.code, brand:r.brand, name:r.name, price:r.price==null?null:Number(r.price), stock:r.stock, created:r.created_at});
-const rowL = r => ({id:r.id, t:r.t, type:r.type, code:r.code, name:r.name, brand:r.brand, price:r.price==null?null:Number(r.price), delta:r.delta, after:r.after, actor:r.actor});
+const rowL = r => ({id:r.id, t:r.t, type:r.type, code:r.code, name:r.name, brand:r.brand, price:r.price==null?null:Number(r.price), delta:r.delta, after:r.after, actor:r.actor, receipt:r.receipt_id||null, ref:r.ref_log_id||null});
 function upsertLocal(p){ const i = state.products.findIndex(x=>x.code===p.code); if(i>=0) state.products[i] = p; else state.products.push(p); }
 function pushLog(l){ if(!state.logs.some(x=>x.id===l.id)){ state.logs.unshift(l); if(state.logs.length>5000) state.logs.length=5000; } }
 let channel;
@@ -439,7 +509,7 @@ async function handleScan(code){
   const qty = Math.max(1, parseInt($('#qty').value)||1);
   const p = findByCode(code);
   if(!p){ showFeedback('warn', '미등록 바코드', code, null, '재고에 반영되지 않았습니다. 라벨을 다시 확인하세요.'); beep(false); $('#feedback').insertAdjacentHTML('beforeend', `<div style="margin-top:10px"><button class="btn ghost" id="regUnknown">이 바코드로 상품 등록</button></div>`); $('#regUnknown').onclick = () => openItemDlg({code}); return; }
-  if(mode==='out' && p.stock - qty < 0){ showFeedback('warn', p.name, p.brand, p.stock, `재고가 ${p.stock}개뿐입니다. 판매를 반영하지 않았어요.`); beep(false); return; }
+  if(mode==='out'){ addToCart(p, qty); return; }
   try{
     const r = await rpc('apply_stock', {p_code: code, p_type: mode, p_qty: qty});
     p.stock = r.stock; pushLog(rowL(r.log));
@@ -457,9 +527,138 @@ function showFeedback(kind, title, sub, stock, note){
   const fb = $('#feedback');
   fb.className = 'feedback ' + kind;
   fb.innerHTML = (stock!=null ? `<div class="stock">${stock}<small>현재 재고</small></div>` : '') +
-    `<div class="big">${esc(title)}</div><div class="brand">${esc(BRAND_KO[sub]||sub)}${note?' · '+esc(note):''}</div>`;
+    `<div class="big">${esc(title)}</div><div class="brand">${esc(BRAND_KO[sub]||sub||'')}${note?(sub?' · ':'')+esc(note):''}</div>`;
   requestAnimationFrame(()=>fb.classList.add('flash'));
 }
+/* ── 장바구니 (판매 모드) ── */
+let cart = []; // {code, qty}
+let cartErr = '';
+const cartQty = code => (cart.find(c=>c.code===code)||{}).qty||0;
+function addToCart(p, qty){
+  const have = cartQty(p.code);
+  if(p.stock - have - qty < 0){ showFeedback('warn', p.name, p.brand, p.stock, `재고가 ${p.stock}개뿐입니다${have?` (장바구니에 이미 ${have}개)`:''}. 담지 않았어요.`); beep(false); return; }
+  const c = cart.find(c=>c.code===p.code);
+  if(c) c.qty += qty; else cart.push({code:p.code, qty});
+  cartErr = '';
+  showFeedback('ok', p.name, p.brand, p.stock, `장바구니에 담음 · ${fmt(p.price)}원 × ${cartQty(p.code)}`);
+  beep(true); renderCart();
+}
+function cartLines(){ return cart.map(c => { const p = findByCode(c.code)||{}; return {...c, p, amt:(p.price||0)*c.qty}; }); }
+function renderCart(){
+  const el = $('#cart');
+  el.hidden = mode!=='out';
+  if(el.hidden) return;
+  const lines = cartLines();
+  if(!lines.length){ el.innerHTML = `<div class="empty">장바구니가 비어 있습니다. 상품을 스캔하세요.</div>` + (cartErr?`<div class="err">${esc(cartErr)}</div>`:''); return; }
+  const tq = lines.reduce((s,l)=>s+l.qty,0), ta = lines.reduce((s,l)=>s+l.amt,0);
+  el.innerHTML = `<table><thead><tr><th>상품</th><th class="num">판매가</th><th class="num">수량</th><th class="num">금액</th><th></th></tr></thead><tbody>` +
+    lines.map(l => `<tr><td class="name">${esc(l.p.name||l.code)}<small>${esc(BRAND_KO[l.p.brand]||l.p.brand||'')}</small></td><td class="num">${fmt(l.p.price)}</td><td class="num"><span class="qtyc"><button data-dec="${esc(l.code)}">−</button><b>${l.qty}</b><button data-inc="${esc(l.code)}">+</button></span></td><td class="num"><b>${fmt(l.amt)}</b></td><td><button class="rm" data-rm="${esc(l.code)}">빼기</button></td></tr>`).join('') +
+    `</tbody><tfoot><tr><td colspan="2"><b>합계</b></td><td class="num"><b>${tq}개</b></td><td class="num total" colspan="2"><small>원</small>${fmt(ta)}</td></tr></tfoot></table>` +
+    (cartErr?`<div class="err">${esc(cartErr)}</div>`:'') +
+    `<div class="actions"><button class="btn ghost" id="cartClear">전체 취소</button><button class="btn primary" id="cartCheckout">결제 완료 — 재고 차감</button></div>`;
+  el.querySelectorAll('[data-inc]').forEach(b => b.onclick = () => { const p = findByCode(b.dataset.inc); if(p) addToCart(p, 1); });
+  el.querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { const c = cart.find(x=>x.code===b.dataset.dec); if(!c) return; c.qty--; if(c.qty<=0) cart = cart.filter(x=>x!==c); renderCart(); });
+  el.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { cart = cart.filter(x=>x.code!==b.dataset.rm); renderCart(); });
+  $('#cartClear').onclick = () => { if(confirm('장바구니를 비울까요?')){ cart = []; cartErr=''; renderCart(); scan.focus(); } };
+  $('#cartCheckout').onclick = checkout;
+}
+async function checkout(){
+  if(!cart.length) return;
+  const btn = $('#cartCheckout'); btn.disabled = true; btn.textContent = '처리 중…';
+  const lines = cartLines(); const done = [];
+  const receipt = 'R' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase();
+  let tq = 0, ta = 0;
+  for(const l of lines){
+    try{
+      const r = await rpc('apply_stock', {p_code: l.code, p_type: 'out', p_qty: l.qty, p_receipt: receipt});
+      l.p.stock = r.stock; pushLog(rowL(r.log));
+      done.push(l.code); tq += l.qty; ta += l.amt;
+    }catch(e){
+      const m = String(e.message||'');
+      cartErr = m.startsWith('INSUFFICIENT') ? `${l.p.name}: 다른 곳에서 먼저 판매되어 재고가 ${m.split(':')[1]}개뿐입니다. 이 항목부터는 처리되지 않았어요 — 수량을 고치고 다시 결제 완료를 누르세요.` : `${l.p.name}: 저장 실패 — 인터넷 연결을 확인하고 다시 시도하세요. (앞의 ${done.length}건은 처리됨)`;
+      break;
+    }
+  }
+  cart = cart.filter(c => !done.includes(c.code));
+  if(!cart.length){ cartErr=''; showFeedback('ok', `결제 완료 · ${fmt(ta)}원`, '', null, `${done.length}종 ${tq}개 재고 차감`); beep(true); }
+  else beep(false);
+  render(); renderCart(); scan.focus();
+}
+
+/* ── 결제(영수증) 단위 ── */
+function cancelledOf(l){
+  // 이 판매 줄에 대해 이미 취소된 수량. ref가 없는 예전 기록은 같은 영수증·같은 상품의 취소를 합산
+  return state.logs.filter(x => x.type==='cancel' && (x.ref ? String(x.ref)===String(l.id) : (l.receipt ? x.receipt===l.receipt && x.code===l.code : x.code===l.code && new Date(x.t) > new Date(l.t)))).reduce((n,x)=>n+x.delta,0);
+}
+function groupReceipts(logs){
+  // receipt_id가 있으면 그것으로, 없는 예전 기록은 5초 이내 연속 판매를 한 결제로
+  const outs = logs.filter(l => l.type==='out').sort((a,b)=> new Date(b.t)-new Date(a.t));
+  const map = new Map(); const rows = []; let grp = null;
+  outs.forEach(l => {
+    if(l.receipt){ let r = map.get(l.receipt); if(!r){ r = {id:l.receipt, lines:[]}; map.set(l.receipt, r); rows.push(r); } r.lines.push(l); grp = null; }
+    else if(grp && Math.abs(new Date(grp.lines[grp.lines.length-1].t) - new Date(l.t)) <= 5000){ grp.lines.push(l); }
+    else { grp = {id:null, lines:[l]}; rows.push(grp); }
+  });
+  rows.forEach(r => { r.lines.sort((a,b)=> new Date(a.t)-new Date(b.t)); r.t = r.lines[0].t;
+    r.qty = r.lines.reduce((n,l)=>n-l.delta,0); r.amt = r.lines.reduce((n,l)=>n+(-l.delta)*unitPrice(l),0);
+    r.cq = r.lines.reduce((n,l)=>n+cancelledOf(l),0); r.ca = r.lines.reduce((n,l)=>n+cancelledOf(l)*unitPrice(l),0); });
+  return rows;
+}
+function receiptHTML(r, compact){
+  const status = r.cq>=r.qty ? '전체 취소' : r.cq ? `부분 취소 ${r.cq}개` : '';
+  const lines = r.lines.map(l => { const c = cancelledOf(l), left = -l.delta - c; return `<tr><td>${esc(l.name)}<br><small style="color:var(--mute)">${esc(BRAND_KO[l.brand]||l.brand)}</small></td><td class="num">${-l.delta}개${c?`<span class="cx">취소 ${c}</span>`:''}</td><td class="num">${fmt(-l.delta*unitPrice(l))}</td><td class="num">${isStore()&&left>0?`<button class="cancelSale" data-cancel="${l.id}">취소</button>`:''}</td></tr>`; }).join('');
+  const ft = isStore() && r.cq<r.qty ? `<div class="ft"><button class="btn ghost" data-cancel-all="${r.lines.map(l=>l.id).join(',')}">전체 취소</button></div>` : '';
+  return `<div class="rcpt ${r.cq>=r.qty?'void':''}"><div class="hd"><time>${compact?hhmm(r.t):dmy(r.t)}</time><span>${r.lines.length}종 ${r.qty}개</span>${r.id?`<span class="id">${r.id}</span>`:''}${status?`<span class="st">${status}</span>`:''}<span class="sum">${fmt(r.amt - r.ca)}원${r.ca?`<small style="font-weight:500;color:var(--mute)"> / ${fmt(r.amt)}</small>`:''}</span></div><table><tbody>${lines}</tbody></table>${ft}</div>`;
+}
+function bindReceiptButtons(root){
+  root.querySelectorAll('[data-cancel]').forEach(b => b.onclick = () => openCancel(b.dataset.cancel));
+  root.querySelectorAll('[data-cancel-all]').forEach(b => b.onclick = () => cancelAll(b.dataset.cancelAll.split(',')));
+}
+if(!$('#rDate').value) $('#rDate').value = dkeyLocal(new Date());
+function dkeyLocal(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function renderReceipts(){
+  const day = $('#rDate').value, from = $('#rFrom').value, to = $('#rTo').value, q = $('#rQ').value.trim().toLowerCase(), onlyVoid = $('#rVoid').checked;
+  let rs = groupReceipts(state.logs.filter(l => !day || dkeyLocal(new Date(l.t))===day));
+  const hm = t => { const d = new Date(t); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); };
+  if(from) rs = rs.filter(r => hm(r.t) >= from);
+  if(to) rs = rs.filter(r => hm(r.t) <= to);
+  if(q) rs = rs.filter(r => r.lines.some(l => l.name.toLowerCase().includes(q) || l.code.includes(q)) || (r.id||'').toLowerCase().includes(q));
+  if(onlyVoid) rs = rs.filter(r => r.cq > 0);
+  const tq = rs.reduce((n,r)=>n+r.qty-r.cq,0), ta = rs.reduce((n,r)=>n+r.amt-r.ca,0);
+  $('#rCount').innerHTML = rs.length ? `결제 <b>${rs.length}건</b> · ${tq}개 · <b>${fmt(ta)}원</b>` : '';
+  $('#rList').innerHTML = rs.length ? rs.map(r => receiptHTML(r, !!day)).join('') : '<div class="empty">조건에 맞는 결제가 없습니다.</div>';
+  bindReceiptButtons($('#rList'));
+}
+['rDate','rFrom','rTo','rQ','rVoid'].forEach(id => $('#'+id).addEventListener('input', renderReceipts));
+
+/* ── 판매 취소 (부분 취소) ── */
+let cancelling = null;
+function openCancel(id){
+  const l = state.logs.find(x => String(x.id)===String(id)); if(!l || l.type!=='out') return;
+  const sold = -l.delta, already = cancelledOf(l), left = sold - already;
+  if(left <= 0){ alert('이미 전부 취소된 항목입니다.'); return; }
+  cancelling = l;
+  const f = $('#cancelForm'); f.qty.max = left; f.qty.value = Math.min(1, left);
+  $('#cancelSub').textContent = `${hhmm(l.t)} 판매 · ${l.name} (${BRAND_KO[l.brand]||l.brand}) ${sold}개 · ${fmt(unitPrice(l))}원${already?` · 이미 취소 ${already}개, 남은 ${left}개`:''}`;
+  $('#cancelDlg').showModal(); f.qty.focus(); f.qty.select();
+}
+$('#cancelClose').onclick = () => $('#cancelDlg').close();
+$('#cancelForm').addEventListener('submit', async e => {
+  if(e.submitter && e.submitter.value!=='ok') return;
+  e.preventDefault();
+  const l = cancelling; if(!l) return;
+  const qty = Math.max(1, Math.min(-l.delta - cancelledOf(l), parseInt(e.target.qty.value)||1));
+  try{
+    const r = await rpc('apply_stock', {p_code: l.code, p_type: 'cancel', p_qty: qty, p_receipt: l.receipt, p_ref: l.id});
+    const p = findByCode(l.code); if(p) p.stock = r.stock; pushLog(rowL(r.log));
+    $('#cancelDlg').close();
+    showFeedback('ok', l.name, l.brand, r.stock, `판매취소 ${qty}개 · 재고 되돌림`); beep(true); render();
+  }catch(err){
+    const m = String(err.message||'');
+    alert(m.startsWith('OVER_CANCEL') ? `이 항목은 ${m.split(':')[1]}개까지만 취소할 수 있습니다.` : m.includes('알 수 없는 작업') || m.includes('p_receipt') ? '서버에 결제 이력 기능이 아직 없습니다. Supabase SQL 업데이트(supabase_update_receipts.sql)를 먼저 실행하세요.' : '취소 실패: ' + m);
+  }
+});
+
 let audio;
 function beep(ok){
   try{ audio = audio || new (window.AudioContext||window.webkitAudioContext)();
@@ -484,12 +683,12 @@ document.addEventListener('keydown', e => {
 document.querySelectorAll('.modes button').forEach(b => b.addEventListener('click', () => {
   mode = b.dataset.mode;
   document.querySelectorAll('.modes button').forEach(x => x.setAttribute('aria-pressed', x===b));
-  $('#modeHint').textContent = MODE_TEXT[mode]; scan.focus();
+  $('#modeHint').textContent = MODE_TEXT[mode]; renderCart(); scan.focus();
 }));
 document.querySelectorAll('nav button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('nav button').forEach(x => x.removeAttribute('aria-current'));
   b.setAttribute('aria-current','page');
-  ['scan','items','sales','barcode','log'].forEach(t => $('#tab-'+t).hidden = t!==b.dataset.tab);
+  ['scan','receipts','items','sales','barcode','log'].forEach(t => $('#tab-'+t).hidden = t!==b.dataset.tab);
   if(b.dataset.tab==='scan') scan.focus();
 }));
 
@@ -524,7 +723,8 @@ $('#addBtn').onclick = () => openItemDlg({});
 
 /* ── 렌더 ── */
 function render(){
-  renderSummary(); renderItems(); renderRecent(); renderLog(); renderSales();
+  renderCart();
+  renderSummary(); renderItems(); renderRecent(); renderLog(); renderSales(); renderReceipts();
   const total = state.products.reduce((s,p)=>s+p.stock,0);
   $('#countText').textContent = `상품 ${state.products.length}종 · 재고 ${fmt(total)}개`;
 }
@@ -549,15 +749,36 @@ function renderItems(){
 }
 function renderRecent(){
   const today = new Date().toDateString();
-  const items = state.logs.filter(l => new Date(l.t).toDateString()===today && l.type!=='edit').slice(0,12);
-  $('#recent').innerHTML = items.length ? items.map(l => `<li><time>${hhmm(l.t)}</time><span class="tag ${l.type}">${TYPE_KO[l.type]}</span><span>${esc(l.name)}</span><span style="margin-left:auto;color:var(--mute)">${l.delta>0?'+':''}${l.delta} → ${l.after}</span></li>`).join('') : '<li style="color:var(--mute)">오늘 처리한 항목이 아직 없습니다.</li>';
+  const items = state.logs.filter(l => new Date(l.t).toDateString()===today && l.type!=='edit');
+  const rs = groupReceipts(items.filter(l=>l.type==='out')).slice(0,8);
+  const others = items.filter(l => l.type!=='out' && l.type!=='cancel').slice(0,10);
+  const line = l => `<li><time>${hhmm(l.t)}</time><span class="tag ${l.type}">${TYPE_KO[l.type]}</span><span>${esc(l.name)}</span><span style="margin-left:auto;color:var(--mute)">${l.delta>0?'+':''}${l.delta} → ${l.after}</span></li>`;
+  $('#recent').innerHTML = (rs.length || others.length)
+    ? rs.map(r => `<li style="display:block;padding:0;border:0">${receiptHTML(r, true)}</li>`).join('') + others.map(line).join('')
+    : '<li style="color:var(--mute)">오늘 처리한 항목이 아직 없습니다.</li>';
+  bindReceiptButtons($('#recent'));
+}
+async function cancelAll(ids){
+  const ls = ids.map(id => state.logs.find(x => String(x.id)===id)).filter(l => l && l.type==='out' && -l.delta - cancelledOf(l) > 0);
+  if(!ls.length){ alert('취소할 항목이 없습니다.'); return; }
+  const tq = ls.reduce((n,l)=>n-l.delta-cancelledOf(l),0);
+  if(!confirm(`이 결제의 ${ls.length}종 ${tq}개를 모두 취소하고 재고로 되돌릴까요?`)) return;
+  let done = 0;
+  for(const l of ls){
+    const left = -l.delta - cancelledOf(l); if(left<=0){ done++; continue; }
+    try{ const r = await rpc('apply_stock', {p_code: l.code, p_type: 'cancel', p_qty: left, p_receipt: l.receipt, p_ref: l.id}); const p = findByCode(l.code); if(p) p.stock = r.stock; pushLog(rowL(r.log)); done++; }
+    catch(err){ const m = String(err.message||''); alert((m.includes('알 수 없는 작업') ? '서버에 판매취소 기능이 아직 없습니다. Supabase SQL 업데이트를 먼저 실행하세요.' : '취소 실패: ' + m) + ` (${done}건은 처리됨)`); break; }
+  }
+  if(done===ls.length){ showFeedback('ok', `결제 전체 취소`, '', null, `${ls.length}종 ${tq}개 재고 되돌림`); beep(true); }
+  render(); scan.focus();
 }
 function renderLog(){
   const sel = $('#logBrand');
   const b = sel.value, t = $('#logType').value;
   const ls = state.logs.filter(l => (!b||l.brand===b) && (!t||l.type===t)).slice(0,500);
   $('#logWrap').innerHTML = ls.length ? `<table><thead><tr><th>시간</th><th>작업</th><th>브랜드</th><th>상품</th><th class="num">변동</th><th class="num">이후 재고</th></tr></thead><tbody>` +
-    ls.map(l => `<tr><td>${dmy(l.t)}</td><td><span class="tag ${l.type}">${TYPE_KO[l.type]}</span></td><td>${esc(BRAND_KO[l.brand]||l.brand)}</td><td>${esc(l.name)}</td><td class="num">${l.delta>0?'+':''}${l.delta}</td><td class="num">${l.after}</td></tr>`).join('') + '</tbody></table>' : '<div class="empty">기록이 없습니다.</div>';
+    ls.map(l => `<tr><td>${dmy(l.t)}</td><td><span class="tag ${l.type}">${TYPE_KO[l.type]}</span></td><td>${esc(BRAND_KO[l.brand]||l.brand)}</td><td>${esc(l.name)}</td><td class="num">${l.delta>0?'+':''}${l.delta}</td><td class="num">${l.after}${l.type==='out'&&isStore()?`<button class="cancelSale" data-cancel="${l.id}">취소</button>`:''}</td></tr>`).join('') + '</tbody></table>' : '<div class="empty">기록이 없습니다.</div>';
+  $('#logWrap').querySelectorAll('[data-cancel]').forEach(b => b.onclick = () => openCancel(b.dataset.cancel));
 }
 ['#q','#lowAt'].forEach(s => $(s).addEventListener('input', render));
 ['#logBrand','#logType'].forEach(s => $(s).addEventListener('change', renderLog));
@@ -571,7 +792,7 @@ const visibleBrands = () => (typeof VISIBLE!=='undefined' && VISIBLE.length) ? V
 const unitPrice = l => (l.price ?? (findByCode(l.code)||{}).price) || 0;
 function salesByDay(){
   const m = {};
-  state.logs.forEach(l => { if(l.type!=='out') return; const k = dkey(l.t); m[k] = m[k] || {qty:0, amt:0}; m[k].qty += -l.delta; m[k].amt += -l.delta*unitPrice(l); });
+  state.logs.forEach(l => { if(!isSale(l)) return; const k = dkey(l.t); m[k] = m[k] || {qty:0, amt:0}; m[k].qty += -l.delta; m[k].amt += -l.delta*unitPrice(l); });
   return m;
 }
 function renderSales(){
@@ -595,7 +816,7 @@ function renderSales(){
   renderDay();
 }
 function renderDay(){
-  const ls = state.logs.filter(l => l.type==='out' && dkey(l.t)===calDay);
+  const ls = state.logs.filter(l => isSale(l) && dkey(l.t)===calDay);
   const d = new Date(calDay+'T12:00:00');
   const title = d.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'long'});
   const tq = ls.reduce((n,l)=>n-l.delta,0), ta = ls.reduce((n,l)=>n + (-l.delta)*unitPrice(l),0);
@@ -647,7 +868,7 @@ function parseCSV(t){ const rows=[]; let row=[], cur='', q=false; for(let i=0;i<
 /* ── 일마감 ── */
 function todayLogs(){ const d = new Date().toDateString(); return state.logs.filter(l => new Date(l.t).toDateString()===d); }
 function dailySummary(){
-  const sold = todayLogs().filter(l => l.type==='out');
+  const sold = todayLogs().filter(isSale);
   const rows = VISIBLE.map(b => {
     const ls = sold.filter(l => l.brand===b);
     const qty = ls.reduce((s,l)=>s-l.delta,0);
@@ -668,13 +889,13 @@ $('#closeBtn').onclick = () => {
 };
 $('#closeBrandDownload').onclick = () => {
   const s = stamp(), d = new Date().toLocaleDateString('ko-KR');
-  const tl = todayLogs().filter(l => l.type==='out');
+  const tl = todayLogs().filter(isSale);
   const brands = VISIBLE.filter(b => state.products.some(p=>p.brand===b));
   if(!brands.length){ alert('등록된 상품이 없습니다.'); return; }
   brands.forEach((b, i) => setTimeout(() => {
     const ps = state.products.filter(p=>p.brand===b).sort((x,y)=>x.code.localeCompare(y.code));
     const sold = tl.filter(l=>l.brand===b);
-    const soldAll = state.logs.filter(l=>l.type==='out' && l.brand===b);
+    const soldAll = state.logs.filter(l=>isSale(l) && l.brand===b);
     const cnt = (ls, code) => ls.filter(l=>l.code===code).reduce((n,l)=>n-l.delta,0);
     const up = l => (l.price ?? (findByCode(l.code)||{}).price) || 0;
     const tq = sold.reduce((n,l)=>n-l.delta,0), ta = sold.reduce((n,l)=>n + (-l.delta)*up(l),0);
@@ -693,7 +914,7 @@ $('#closeBrandDownload').onclick = () => {
 $('#closeCancel').onclick = () => $('#closeDlg').close();
 $('#closeDownload').onclick = () => {
   const s = stamp(), rows = dailySummary();
-  const sold = todayLogs().filter(l => l.type==='out');
+  const sold = todayLogs().filter(isSale);
   const summary = [['date','brand','brand_en','units_sold','sales_krw','stock_remaining'], ...rows.map(r=>[s, BRAND_KO[r.b], r.b, r.qty, r.amt, r.stock]), [], ['--- 오늘 판매 상세 ---'], ['time','brand','barcode','name','qty','unit_price','amount'],
     ...sold.map(l => { const up = (l.price ?? (findByCode(l.code)||{}).price) || 0; return [dmy(l.t), BRAND_KO[l.brand], l.code, l.name, -l.delta, up, -l.delta*up]; })];
   download(`neolocal_마감_${s}.csv`, toCSV(summary));
@@ -820,6 +1041,7 @@ if('BarcodeDetector' in window){
 }
 
 
+window.addEventListener('beforeunload', e => { if(cart.length){ e.preventDefault(); e.returnValue=''; } });
 </script>
 </body>
 </html>
