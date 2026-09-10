@@ -240,7 +240,7 @@ td svg.bc{height:26px;width:96px;display:block}
     <button data-tab="log">기록</button>
   </nav>
   <button class="btn close-day" id="closeBtn">일마감</button>
-  <span class="who"><span id="live" title="실시간 연결"></span><b id="whoName"></b><button type="button" id="logoutBtn">로그아웃</button></span>
+  <span class="who"><span id="live" title="실시간 연결"></span><b id="whoName"></b><button type="button" id="pwBtn">비밀번호 변경</button><button type="button" id="logoutBtn">로그아웃</button></span>
 </header>
 
 <main>
@@ -403,6 +403,20 @@ td svg.bc{height:26px;width:96px;display:block}
 </dialog>
 
 <!-- 일마감 -->
+<dialog id="pwDlg">
+  <form method="dialog" id="pwForm">
+    <h2>비밀번호 변경</h2>
+    <p class="sub">로그인한 계정의 비밀번호를 바꿉니다. 잊어버리면 매장 담당자에게 재설정을 요청하세요.</p>
+    <label class="field"><span>새 비밀번호</span><input name="pw1" type="password" autocomplete="new-password" required></label>
+    <label class="field"><span>새 비밀번호 확인</span><input name="pw2" type="password" autocomplete="new-password" required></label>
+    <p class="hint" id="pwMsg" style="min-height:18px"></p>
+    <div class="actions">
+      <button class="btn ghost" type="button" id="pwCancel">취소</button>
+      <button class="btn primary" value="ok">변경</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog id="closeDlg">
   <form method="dialog">
     <h2>일마감</h2>
@@ -522,6 +536,18 @@ $('#authForm').addEventListener('submit', async e => {
   if(error) authFail('이메일 또는 비밀번호가 맞지 않습니다.');
 });
 $('#logoutBtn').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+$('#pwBtn').onclick = () => { const f = $('#pwForm'); f.reset(); $('#pwMsg').textContent=''; $('#pwDlg').showModal(); f.pw1.focus(); };
+$('#pwCancel').onclick = () => $('#pwDlg').close();
+$('#pwForm').addEventListener('submit', async e => {
+  if(e.submitter && e.submitter.value!=='ok') return;
+  e.preventDefault();
+  const f = e.target, a = f.pw1.value, b = f.pw2.value, msg = $('#pwMsg');
+  if(a !== b){ msg.textContent = '두 칸의 비밀번호가 다릅니다.'; msg.style.color='var(--warn)'; return; }
+  msg.textContent = '변경 중…'; msg.style.color='';
+  const { error } = await sb.auth.updateUser({ password: a });
+  if(error){ msg.textContent = /short|length|characters/i.test(error.message) ? '비밀번호가 너무 짧습니다. 더 길게 정해 주세요.' : '변경 실패: ' + error.message; msg.style.color='var(--warn)'; return; }
+  $('#pwDlg').close(); alert('비밀번호가 변경되었습니다. 다음 로그인부터 새 비밀번호를 쓰세요.');
+});
 sb.auth.onAuthStateChange((ev, session) => { if((ev==='SIGNED_IN'||ev==='INITIAL_SESSION') && session) load().then(()=>scan.focus()); });
 function setSaving(t, bad){ saveText.textContent = t; saveDot.style.background = bad ? 'var(--warn)' : 'var(--ok)'; }
 
