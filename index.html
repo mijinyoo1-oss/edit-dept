@@ -978,7 +978,7 @@ function dailySummary(){
   const rows = VISIBLE.map(b => {
     const ls = sold.filter(l => l.brand===b);
     const qty = ls.reduce((s,l)=>s-l.delta,0);
-    const amt = ls.reduce((s,l)=>s + (-l.delta)*((l.price ?? (findByCode(l.code)||{}).price) || 0),0);
+    const amt = ls.reduce((s,l)=>s + (-l.delta)*unitPrice(l),0);
     const stock = state.products.filter(p=>p.brand===b).reduce((s,p)=>s+p.stock,0);
     return {b, qty, amt, stock};
   });
