@@ -385,7 +385,7 @@ td svg.bc{height:26px;width:96px;display:block}
   <form method="dialog" id="itemForm">
     <h2 id="dlgTitle">상품 등록</h2>
     <p class="sub" id="dlgSub">스캔한 바코드가 등록되어 있지 않습니다.</p>
-    <label class="field"><span>바코드</span><input name="code" required></label>
+    <label class="field"><span>바코드</span><div class="photo-row"><input name="code" required style="flex:1"><button type="button" class="btn ghost" id="autoCode" style="padding:8px 12px;white-space:nowrap">13자리 자동 발급</button></div></label>
     <label class="field"><span>브랜드</span><select name="brand" required id="brandSel"></select></label>
     <label class="field"><span>상품명</span><input name="name" required placeholder="예: 스트라이프 리넨 쿠션 커버"></label>
     <div class="row2">
@@ -754,12 +754,13 @@ function openItemDlg(p, isEdit){
   $('#dlgSub').textContent = isEdit ? '재고를 직접 바꾸면 기록에 "수정"으로 남습니다.' : (p.code ? '스캔한 바코드가 등록되어 있지 않습니다.' : '바코드 칸에 커서를 두고 스캔하면 자동 입력됩니다.');
   form.code.value = p.code||''; form.brand.value = p.brand||brandFilter||BRANDS[0]; form.name.value = p.name||'';
   form.price.value = p.price??''; form.stock.value = p.stock??0;
-  form.code.readOnly = !!isEdit;
+  form.code.readOnly = false; form.dataset.orig = isEdit ? p.code : '';
   photoState = {url: p.photo||null, file:null, remove:false}; renderPhotoPrev();
   $('#dlgDelete').hidden = !isEdit;
   dlg.showModal(); (isEdit ? form.name : (p.code ? form.name : form.code)).focus();
 }
 $('#dlgCancel').onclick = () => dlg.close('cancel');
+$('#autoCode').onclick = () => { const f = $('#itemForm'); f.code.value = nextCode(f.brand.value || (isStore() ? BRANDS[0] : ME.brand)); _reserved.clear(); };
 let photoState = {url:null, file:null, remove:false};
 function renderPhotoPrev(){ const img = $('#photoPrev'); const src = photoState.file ? URL.createObjectURL(photoState.file) : (!photoState.remove && photoState.url) || ''; img.hidden = !src; if(src) img.src = src; $('#photoRm').hidden = !src; }
 $('#photoIn').onchange = async e => { const f = e.target.files[0]; if(!f) return; photoState.file = await shrinkImage(f); photoState.remove = false; renderPhotoPrev(); };
@@ -783,8 +784,17 @@ form.addEventListener('submit', async e => {
   if(e.submitter && e.submitter.value!=='save') return;
   const d = Object.fromEntries(new FormData(form));
   d.code = d.code.trim(); d.stock = parseInt(d.stock)||0; d.price = d.price===''? null : Number(d.price);
-  if(!editing && findByCode(d.code)){ alert('이미 등록된 바코드입니다.'); e.preventDefault(); return; }
-  const row = {code: editing || d.code, brand:d.brand, name:d.name.trim(), price:d.price, stock:d.stock, photo: photoState.remove ? '' : (photoState.url||undefined)};
+  const newCode = (d.code||'').trim(), orig = form.dataset.orig;
+  if(!editing && findByCode(newCode)){ alert('이미 등록된 바코드입니다.'); e.preventDefault(); return; }
+  if(editing && newCode !== orig){
+    if(findByCode(newCode)){ alert('이미 다른 상품이 쓰는 바코드입니다.'); e.preventDefault(); return; }
+    e.preventDefault();
+    try{ const res = await rpc('rename_product', {p_old: orig, p_new: newCode}); const c = res || newCode;
+      state.products.forEach(p => { if(p.code===orig) p.code = c; }); state.logs.forEach(l => { if(l.code===orig) l.code = c; }); editing = c; form.dataset.orig = c;
+    }catch(err){ const m = String(err.message||''); alert(m.includes('rename_product') || m.includes('does not exist') ? '서버에 바코드 변경 기능이 아직 없습니다. Supabase SQL 업데이트(supabase_update_v4.sql)를 먼저 실행하세요.' : '바코드 변경 실패: '+m); return; }
+    dlg.close('save');
+  }
+  const row = {code: editing || newCode, brand:d.brand, name:d.name.trim(), price:d.price, stock:d.stock, photo: photoState.remove ? '' : (photoState.url||undefined)};
   if(photoState.file){ e.preventDefault(); try{ row.photo = await uploadPhoto(row.code, photoState.file); }catch(err){ alert('사진 업로드 실패: '+(err.message||err)+'\n사진 없이 저장합니다.'); } dlg.close('save'); }
   rpc('register_products', {p_rows:[row]}).then(res => {
     const c = (res && res[0] && res[0].code) || row.code;
