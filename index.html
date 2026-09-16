@@ -984,11 +984,16 @@ $('#exportLog').onclick = () => download(`neolocal_log_${stamp()}.csv`, toCSV([[
 $('#importBtn').onclick = () => $('#importFile').click();
 $('#importFile').addEventListener('change', async e => {
   const f = e.target.files[0]; if(!f) return;
-  const text = (await f.text()).replace(/^\uFEFF/,'');
+  /* 인코딩 자동 판별: UTF-8 로 안 읽히면 엑셀 기본(EUC-KR/CP949)으로 다시 읽음 */
+  const buf = await f.arrayBuffer(); let text;
+  try{ text = new TextDecoder('utf-8', {fatal:true}).decode(buf); }catch(_){ try{ text = new TextDecoder('euc-kr').decode(buf); }catch(__){ text = new TextDecoder().decode(buf); } }
+  if(/\uFFFD/.test(text.slice(0,200))){ try{ text = new TextDecoder('euc-kr').decode(buf); }catch(_){} }
+  text = text.replace(/^\uFEFF/,'');
   const rows = parseCSV(text); if(rows.length<2){ alert('내용이 없습니다.'); return; }
-  const h = rows[0].map(s=>s.trim().toLowerCase());
-  const ix = k => h.findIndex(x => k.includes(x));
-  const iCode = ix(['barcode','code','바코드']), iBrand = ix(['brand','브랜드']), iName = ix(['name','상품명','상품']), iPrice = ix(['price','판매가','가격']), iStock = ix(['stock','재고','수량']);
+  const h = rows[0].map(s=>s.replace(/[\s"'()（）*]/g,'').toLowerCase());
+  const ix = k => h.findIndex(x => k.some(kk => x===kk || x.startsWith(kk)));
+  const iCode = ix(['barcode','code','바코드','상품코드','코드']), iBrand = ix(['brand','브랜드']), iName = ix(['name','상품명','상품','품명','제품명']), iPrice = ix(['price','판매가','가격','단가','정가']), iStock = ix(['stock','재고','수량','입고']);
+  if(iName<0){ alert('상품명 열을 찾지 못했습니다.\n첫 줄(제목 행)을 읽은 결과: ' + rows[0].join(' | ') + '\n\n첫 줄이 "바코드, 상품명, 판매가, 재고" 인지 확인해 주세요.'); return; }
   if(iName<0){ alert('상품명(name) 열이 필요합니다.'); return; }
   const fallbackBrand = $('#pasteBrand').value || BRANDS[0]; _reserved.clear();
   const out = [];
@@ -996,7 +1001,8 @@ $('#importFile').addEventListener('change', async e => {
     let brand = (isStore() ? matchBrand(iBrand>=0 ? r[iBrand] : '') : ME.brand) || fallbackBrand;
     const name = (r[iName]||'').trim(); if(!name) return;
     const code = iCode>=0 ? (r[iCode]||'').trim() : '';
-    const stock = parseInt(r[iStock])||0, price = iPrice>=0 && r[iPrice]!=='' ? Number(r[iPrice]) : null;
+    const numv = s => { const v = String(s??'').replace(/[^\d.\-]/g,''); return v==='' ? null : Number(v); };
+    const stock = Math.max(0, numv(r[iStock]) ?? 0), price = iPrice>=0 ? numv(r[iPrice]) : null;
     out.push({code, brand, name, price, stock});
   });
   e.target.value='';
